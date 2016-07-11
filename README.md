@@ -3,9 +3,9 @@ RanDAO Simple, don't generate random number. Let's brute force it.
 
 ## Idea
 
-A think about a number and ask B to guess the result.
-B give A the results, A pick 6 best numbers.
-A combine 6 numbers by using XOR operator and [TheDivine](https://github.com/tad88dev/thedivine)'s power.
+* A think about a number and ask B to guess the result.
+* B give A the results, A pick 6 best numbers.
+* A combine 6 numbers by using XOR operator and [TheDivine](https://github.com/tad88dev/thedivine)'s power.
 
 ## Proof of Work & Zero knowlegde
 
