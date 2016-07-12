@@ -14,7 +14,7 @@ Don't generate random number, let's brute force it.
 
 **A** give a number *Diff*
 
-*let Seed = TheDivine.GetPower() ^ block.blockhash*
+*let Seed = TheDivine.GetPower()*
 
 **A** pick 8 bytes from *Seed* create *Fingerprint*: *let Fingerprint = uint64(Seed)*
 
@@ -24,13 +24,13 @@ Don't generate random number, let's brute force it.
 
 *let Result = sha3^Pow(Seed + Key)*
 
-Pick 8 bytes from Result: *set Part = uint64(Result)*
+Pick 8 bytes from Result: *set Snapshot = uint64(Result)*
 
-*if BitCompare(Part, Fingerprint) < Diff then Key and Pow is accepted.* 
+*if BitCompare(Snapshot, Fingerprint) < Diff then Key and Pow is accepted.* 
 
-*BitCompare()* give the number of difference bits between *Part* and *Fingerprint*
+*BitCompare()* give the number of difference bits between *Snapshot* and *Fingerprint*
 
-Pick 6 values from all commitments, which have geater Pow and lower difference bits: *Commits[]*
+Pick 6 key values from all contributors, which have geater Pow and lower difference bits: *Commits[]*
 
 *let Random = TheDivine.GetPower() ^ Commits[0] ^ ... ^ Commits[5];*
 
