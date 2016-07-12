@@ -14,9 +14,9 @@ Don't generate random number, let's brute force it.
 
 A give a number *Diff*
 
-*Let Seed = TheDivine.GetPower() ^ block.blockhash*
+*Let Seed = TheDivine.GetPower()*
 
-A pick 8 bytes from Seed: *let Lock = uint64(Seed)*
+A pick 8 bytes from *Seed* create *Fingerprint*: *let Fingerprint = uint64(Seed)*
 
 A open a campaign for anyone to submit numbers.
 
@@ -26,7 +26,9 @@ B Submit two numbers Key and Pow:
 
 Pick 8 bytes from Result: *set Part = uint64(Result)*
 
-*BitCompare(Part, Lock) < Diff* //BitCompare() give the number of difference bits between Part and Lock
+*if BitCompare(Part, Fingerprint) < Diff then Key and Pow is accepted.* 
+
+*BitCompare()* give the number of difference bits between *Part* and *Fingerprint*
 
 Pick 6 values from all commitments, which have geater Pow and lower difference bits: *Commits[]*
 

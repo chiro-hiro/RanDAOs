@@ -65,8 +65,7 @@ contract RanDAOs{
             NewCampaign.Creator = msg.sender;
             NewCampaign.StartBlock = block.number;
             NewCampaign.Deposit = msg.value;
-            NewCampaign.Seed = uint256(block.blockhash(block.number));
-            NewCampaign.Seed ^= Divine.GetPower();
+            NewCampaign.Seed = Divine.GetPower();
             NewCampaign.Lock = uint64(NewCampaign.Seed);
             NewCampaign.Pow = 0;
             NewCampaign.Diff = Diff;
@@ -82,7 +81,7 @@ contract RanDAOs{
         if(Pow < MIN_POW || Pow > MAX_POW){
             throw;
         }
-        bytes32 Buffer = sha3(Key, CurCampaign.Seed);
+        bytes32 Buffer = sha3(CurCampaign.Seed, Key);
         for(uint16 Index = 1; Index < Pow; Index++){
             Buffer = sha3(Buffer);
         }
