@@ -75,7 +75,7 @@ contract RanDAOs{
     }
     
     function Submit(uint256 MyCampaign, bytes32 Key, uint16 Pow)
-    public{
+    public returns(bool){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
         Contribute memory CurContribute;
         if(Pow < MIN_POW || Pow > MAX_POW){
@@ -91,9 +91,9 @@ contract RanDAOs{
             CurContribute.Key = Key;
             CurContribute.Pow = Pow;
             if(CurCampaign.Total < MAX_CONRIBUTE){
-                AddContribute(MyCampaign, CurContribute);
+                return AddContribute(MyCampaign, CurContribute);
             }else{
-                UpdateContribute(MyCampaign, CurContribute);
+                return UpdateContribute(MyCampaign, CurContribute);
             }
         }
         throw;
@@ -157,6 +157,7 @@ contract RanDAOs{
                 if(CurCampaign.Contributes[Count].Diff > NewContribute.Diff
                     || (CurCampaign.Contributes[Count].Diff == NewContribute.Diff
                         && CurCampaign.Contributes[Count].Pow < NewContribute.Pow)){
+                    CurCampaign.Contributes[Count] = NewContribute;
                     CurCampaign.Contributed[NewContribute.Key] = true;
                     return true;                    
                 }
