@@ -86,7 +86,7 @@ contract RanDAOs{
             Buffer = sha3(Buffer);
         }
         CurContribute.Diff = BitCompare(uint64(Buffer), CurCampaign.Lock);
-        if(CurContribute.Diff  < CurCampaign.Diff){
+        if(CurContribute.Diff  <= CurCampaign.Diff){
             CurContribute.Sender = msg.sender;
             CurContribute.Key = Key;
             CurContribute.Pow = Pow;

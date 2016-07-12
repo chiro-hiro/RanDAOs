@@ -24,14 +24,14 @@ Don't generate random number, let's brute force it.
 
 *let Result = sha3^Pow(Seed + Key)*
 
-Pick 8 bytes from Result: *set Snapshot = uint64(Result)*
+Pick 8 bytes from *Result*: *set Snapshot = uint64(Result)*
 
-*if BitCompare(Snapshot, Fingerprint) < Diff then Key and Pow is accepted.* 
+*if BitCompare(Snapshot, Fingerprint) <= Diff then Key and Pow is accepted.* 
 
 *BitCompare()* give the number of difference bits between *Snapshot* and *Fingerprint*
 
-Pick 6 key values from all contributors, which have geater Pow and lower difference bits: *Commits[]*
+Pick 6 key values from all contributors, which have geater *Pow* and lower *Diff* bits: *Keys[]*
 
-*let Random = TheDivine.GetPower() ^ Commits[0] ^ ... ^ Commits[5];*
+*let Random = TheDivine.GetPower() ^ Keys[0] ^ ... ^ Keys[5];*
 
 *Random* is final result. 
