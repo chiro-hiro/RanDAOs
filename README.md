@@ -34,4 +34,4 @@ Pick 6 key values from all contributors, which have geater *Pow* and lower *Diff
 
 *let Random = TheDivine.GetPower() ^ Keys[0] ^ ... ^ Keys[5];*
 
-*Random* is final result. 
+Remove 64 bits fingerprint from *Random*, that will be the final result. 

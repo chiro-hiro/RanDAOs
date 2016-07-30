@@ -41,7 +41,7 @@ contract RanDAOs{
         uint64 Lock;
         uint16 Diff; //Lower difference higher difficulty
         uint8 Total;
-        uint256 Result;
+        uint192 Result;
         mapping (uint => Contribute) Contributes;
         mapping (bytes32 => bool) Contributed;
     }
@@ -100,7 +100,7 @@ contract RanDAOs{
     }
     
     function GetResult(uint256 MyCampaign)
-    returns(uint256){
+    returns(uint192){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
         if(CurCampaign.Result != 0){
             return CurCampaign.Result;
@@ -109,7 +109,7 @@ contract RanDAOs{
     }
     
     function Reveal(uint256 MyCampaign)
-    returns(uint256){
+    returns(uint192){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
         uint256 RandomNumber = Divine.GetPower();
         if(CurCampaign.Result == 0){
@@ -119,7 +119,7 @@ contract RanDAOs{
             for(uint Count = CurCampaign.Total; Count < CurCampaign.Total; Count++){
                 RandomNumber ^= uint256(CurCampaign.Contributes[Count].Key);
             }
-            CurCampaign.Result = RandomNumber;
+            CurCampaign.Result = RandomNumber/(2**64); //Remove 64 bits fingerprint
             return CurCampaign.Result;
         }
     }
