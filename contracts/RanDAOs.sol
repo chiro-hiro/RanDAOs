@@ -50,11 +50,17 @@ contract RanDAOs{
     
     mapping  (uint256 => Campaign) StoreCampaigns;
     
+    /*
+    Check campaign is available
+    */
     function IsCampaignAvailable(uint CampaignId)
     returns(bool){
         return StoreCampaigns[CampaignId].Creator == address(0);
     }
     
+    /*
+    Create new campaign by giving valid DIFF and SEED
+    */
     function CreateCampaign (uint CampaignId, uint16 Diff)
     returns(uint256){
         Campaign memory NewCampaign;
@@ -74,6 +80,11 @@ contract RanDAOs{
         }
     }
     
+    /*
+    Submit your contribute, if it wasn't existing then:
+    We will add to contribute if total submissions <  MAX_CONRIBUTE
+    We will update if it is a better contribute which have greater power and lower difference bits.
+    */
     function Submit(uint256 MyCampaign, bytes32 Key, uint16 Pow)
     public returns(bool){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
@@ -99,6 +110,9 @@ contract RanDAOs{
         throw;
     }
     
+    /*
+    Get the result if possible
+    */
     function GetResult(uint256 MyCampaign)
     returns(uint192){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
@@ -108,6 +122,9 @@ contract RanDAOs{
         throw;
     }
     
+    /*
+        Reveal the result
+    */
     function Reveal(uint256 MyCampaign)
     returns(uint192){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
@@ -124,6 +141,9 @@ contract RanDAOs{
         }
     }
     
+    /*
+    Compare two number and count how many difference bits
+    */
     function BitCompare(uint NumberA, uint NumberB)
     private returns(uint16){
         uint Diff = NumberA ^ NumberB;
@@ -137,6 +157,9 @@ contract RanDAOs{
         return CompareResult;
     }
     
+    /*
+    If your contribute is new it will be accept
+    */
     function AddContribute(uint256 MyCampaign, Contribute NewContribute)
     internal returns(bool){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
@@ -149,14 +172,20 @@ contract RanDAOs{
         return false;
     }
     
+    /*
+    Update old contribute by new one if it better (have greater power and lower difference bits.)
+    */
     function UpdateContribute(uint256 MyCampaign, Contribute NewContribute)
     internal returns(bool){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
         if(CurCampaign.Contributed[NewContribute.Key] == false){
             for(uint Count = CurCampaign.Total; Count < CurCampaign.Total; Count++){
-                if(CurCampaign.Contributes[Count].Diff > NewContribute.Diff
-                    || (CurCampaign.Contributes[Count].Diff == NewContribute.Diff
-                        && CurCampaign.Contributes[Count].Pow < NewContribute.Pow)){
+                if(CurCampaign.Contributes[Count].Pow < NewContribute.Pow //Update value to new contribute if it have greater power
+                    || 
+                    (
+                        CurCampaign.Contributes[Count].Pow == NewContribute.Pow //If they have same power we will take lower difference bits
+                        && CurCampaign.Contributes[Count].Diff > NewContribute.Diff
+                    )){
                     CurCampaign.Contributes[Count] = NewContribute;
                     CurCampaign.Contributed[NewContribute.Key] = true;
                     return true;                    
