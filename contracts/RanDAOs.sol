@@ -20,10 +20,10 @@ pragma solidity ^0.4.2;
 
 contract RanDAOs{
     uint256 constant MIN_DEPOSIT = 1 ether;
-    uint16 constant MIN_POWER = 256;
+    uint16 constant MIN_POWER = 128;
     uint16 constant MAX_POWER = 2048;
-    uint16 constant MIN_DIFFERENCE = 8;
-    uint16 constant MAX_DIFFERENCE = 128;
+    uint16 constant MIN_DIFFERENCE = 16;
+    uint16 constant FINGERPRINT_LEN = 128;
     uint constant MAX_CONRIBUTE = 5;
     uint constant ROUND_LENGTH = 20; 
     
@@ -46,13 +46,32 @@ contract RanDAOs{
         uint128 Result;
         mapping (uint => Contribute) Contributes;
     }
+
+    //Events
+
+    //New campaign created
+    event EventNewCampaign(address _creator,
+        uint256 _campaign_id,
+        uint256 _deposit,
+        uint256 _seed,
+        uint128 _fingerprint,
+        uint256 _difficulty,
+        uint256 _require_deposit);
+    
+    //New challenger is success
+    event EventNewChallenger(
+        uint256 _campaign_id,
+        uint256 _seed,
+        uint128 _fingerprint,
+        uint256 _difficulty,
+        uint256 _require_deposit);
     
     mapping  (uint256 => Campaign) StoreCampaigns;
 
     //Calculate Difficulty
     function _DifficultyCalulate(uint16 Power, uint16 Difference)
     private returns(uint256) {
-        return uint256(Power)*(2**128) | (uint256(MAX_DIFFERENCE) - uint256(Difference));
+        return uint256(Power)*(2**128) | (uint256(FINGERPRINT_LEN) - uint256(Difference));
     }
     
     /*
@@ -82,6 +101,16 @@ contract RanDAOs{
             NewCampaign.Seed = uint256(block.blockhash(0));
             NewCampaign.Difficulty = _DifficultyCalulate(Power, Difference);
             NewCampaign.Fingerprint = uint128(NewCampaign.Seed);
+            //Show us new event is ready
+            EventNewCampaign(
+                msg.sender,
+                CampaignId,
+                msg.value,
+                NewCampaign.Seed,
+                NewCampaign.Difficulty,
+                NewCampaign.Fingerprint,
+                msg.value/10
+            );
             StoreCampaigns[CampaignId] = NewCampaign;
             return CampaignId;
         }
@@ -108,20 +137,31 @@ contract RanDAOs{
         CurContribute.Difference = BitCompare(uint128(Buffer), CurCampaign.Fingerprint);
         CurContribute.Difficulty = _DifficultyCalulate(Power, CurContribute.Difference);
 
-        if(CurContribute.Difficulty <= CurCampaign.Difficulty
-            && CurContribute.Difficulty > CurCampaign.Difficulty
+        if(CurContribute.Difficulty > CurCampaign.Difficulty
             && msg.value >= CurCampaign.Deposit/10){
             
             CurContribute.Sender = msg.sender;
             CurContribute.Key = Key;
             CurContribute.Power = Power;
+
+            //Update new difficulty, newer challenger must pass
             CurCampaign.Difficulty = CurContribute.Difficulty;
+
             //Add gurantee deposit
             CurCampaign.Deposit += msg.value;
 
             //Update fingerprint for new challenger
             CurCampaign.Seed = uint256(sha3(CurCampaign.Seed, Key));
             CurCampaign.Fingerprint = uint128(CurCampaign.Seed);
+            
+            //New challenger have successed
+            EventNewChallenger(
+                CurCampaign.CampaignId,
+                CurCampaign.Seed,
+                CurCampaign.Fingerprint,
+                CurCampaign.Difficulty,
+                CurCampaign.Deposit/10
+            );
             
             if(CurCampaign.Total < MAX_CONRIBUTE){
                 return AddContribute(MyCampaign, CurContribute);
@@ -136,7 +176,7 @@ contract RanDAOs{
     Get the result if possible
     */
     function GetResult(uint256 MyCampaign)
-    returns(uint192){
+    public returns(uint192){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
         if(CurCampaign.Result != 0){
             return CurCampaign.Result;
@@ -154,7 +194,7 @@ contract RanDAOs{
     All other contributors lost their deposit
     */
     function Reveal(uint256 MyCampaign)
-    returns(uint192){
+    public returns(uint192){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
         uint256 RandomNumber = 0;
         if(CurCampaign.Result == 0){
@@ -173,7 +213,7 @@ contract RanDAOs{
     Compare two number and count how many difference bits
     */
     function BitCompare(uint NumberA, uint NumberB)
-    private returns(uint16){
+    internal returns(uint16){
         uint Difference = NumberA ^ NumberB;
         uint16 CompareResult = 0;
         while(Difference > 0){
