@@ -25,7 +25,9 @@ contract RanDAOs{
     uint16 constant MIN_DIFFERENCE = 16;
     uint16 constant FINGERPRINT_LEN = 128;
     uint constant MAX_CONRIBUTE = 5;
-    uint constant ROUND_LENGTH = 20; 
+    uint constant ROUND_LENGTH = 20;
+
+    uint256 TotalCampaign = 0;
     
     struct Contribute{
         address Sender;
@@ -36,6 +38,7 @@ contract RanDAOs{
     }
     
     struct Campaign{
+        uint256 CampaignId;
         address Creator;
         uint256 StartBlock;
         uint256 Deposit;
@@ -50,23 +53,25 @@ contract RanDAOs{
     //Events
 
     //New campaign created
-    event EventNewCampaign(address _creator,
-        uint256 _campaign_id,
-        uint256 _deposit,
-        uint256 _seed,
-        uint128 _fingerprint,
-        uint256 _difficulty,
-        uint256 _require_deposit);
+    event EventNewCampaign(
+        address Creator,
+        uint256 Campaign_id,
+        uint256 Deposit,
+        uint256 Seed,
+        uint128 Fingerprint,
+        uint256 Difficulty,
+        uint256 Require_deposit);
     
     //New challenger is success
     event EventNewChallenger(
-        uint256 _campaign_id,
-        uint256 _seed,
-        uint128 _fingerprint,
-        uint256 _difficulty,
-        uint256 _require_deposit);
+        address Challenger,
+        uint256 Campaign_id,
+        uint256 Seed,
+        uint128 Fingerprint,
+        uint256 Difficulty,
+        uint256 Require_deposit);
     
-    mapping  (uint256 => Campaign) StoreCampaigns;
+    mapping  (uint => Campaign) StoreCampaigns;
 
     //Calculate Difficulty
     function _DifficultyCalulate(uint16 Power, uint16 Difference)
@@ -85,32 +90,37 @@ contract RanDAOs{
     /*
     Create new campaign by giving valid DIFFERENCE and POWER
     */
-    function CreateCampaign (uint CampaignId, uint16 Difference, uint16 Power)
-    public returns(uint256){
+    function CreateCampaign (uint16 Difference, uint16 Power)
+    public payable returns(uint256){
+        uint256 CampaignId;
         Campaign memory NewCampaign;
         //Only accept lower than 32 bits difference
         if(Difference > MIN_DIFFERENCE 
-            || StoreCampaigns[CampaignId].Creator != address(0)
             || Power < MIN_POWER
             || msg.value < MIN_DEPOSIT){
             throw;
         }else{
+            CampaignId = TotalCampaign++;
             NewCampaign.Creator = msg.sender;
-            NewCampaign.StartBlock = block.number;
             NewCampaign.Deposit = msg.value;
-            NewCampaign.Seed = uint256(block.blockhash(0));
+
+            NewCampaign.StartBlock = block.number;
+            NewCampaign.Seed = uint256(block.blockhash(block.number-1));
             NewCampaign.Difficulty = _DifficultyCalulate(Power, Difference);
             NewCampaign.Fingerprint = uint128(NewCampaign.Seed);
+
             //Show us new event is ready
             EventNewCampaign(
                 msg.sender,
                 CampaignId,
                 msg.value,
                 NewCampaign.Seed,
-                NewCampaign.Difficulty,
                 NewCampaign.Fingerprint,
+                NewCampaign.Difficulty,
                 msg.value/10
             );
+
+            NewCampaign.CampaignId = CampaignId; 
             StoreCampaigns[CampaignId] = NewCampaign;
             return CampaignId;
         }
@@ -122,12 +132,13 @@ contract RanDAOs{
     We will update if it is a better contribute which have greater power and lower difference bits.
     */
     function Submit(uint256 MyCampaign, bytes32 Key, uint16 Power)
-    public returns(bool){
+    public payable returns(bool){
         Campaign CurCampaign = StoreCampaigns[MyCampaign];
         Contribute memory CurContribute;
         //Make sure that contribute is good power
         if(Power < MIN_POWER
-            || Power > MAX_POWER){
+            || Power > MAX_POWER
+            || CurCampaign.Creator == address(0)){
             throw;
         }
         bytes32 Buffer = sha3(CurCampaign.Seed, Key);
@@ -153,9 +164,10 @@ contract RanDAOs{
             //Update fingerprint for new challenger
             CurCampaign.Seed = uint256(sha3(CurCampaign.Seed, Key));
             CurCampaign.Fingerprint = uint128(CurCampaign.Seed);
-            
+
             //New challenger have successed
             EventNewChallenger(
+                msg.sender,
                 CurCampaign.CampaignId,
                 CurCampaign.Seed,
                 CurCampaign.Fingerprint,
