@@ -6,32 +6,32 @@ Don't generate random number, let's brute force it.
 
 ## Idea
 
-* **A** think about a number and ask **B** to guess the result.
-* **B** give **A** the results, **A** pick 6 best numbers.
-* **A** combine 6 numbers and [The Divine](https://github.com/tad88dev/thedivine)'s power by using XOR operator.
+* **Host** think about a number and ask **Challengers** to guess the results.
+* **Challengers** give **Host** the results, **Host** pick 5 best numbers.
+* **Host** combine 5 numbers by using XOR operator.
 
 ## Proof of Work & Zero knowlegde
 
-**A** give a number *Diff*
+**Host** give two numbers *Diffence* & *Power*
 
-*let Seed = TheDivine.GetPower()*
+*let Seed = block.blockhash(block.number - 1)*
 
-**A** pick 8 bytes from *Seed* create *Fingerprint*: *let Fingerprint = uint64(Seed)*
+**Host** pick 128 bits from *Seed* to create *Fingerprint*: *let Fingerprint = uint128(Seed)*
 
-**A** create a campaign for anyone to submit numbers.
+**Host** create a campaign for anyone to submit numbers.
 
-**B** Submit two numbers Key and Pow:
+**Challengers** Submit two numbers Key and Power:
 
-*let Result = sha3^Pow(Seed + Key)*
+*let Result = sha3^Power(Seed + Key)*
 
-Pick 8 bytes from *Result*: *set Snapshot = uint64(Result)*
+Pick 128 bits from *Result*: *set Snapshot = uint128(Result)*
 
-*if BitCompare(Snapshot, Fingerprint) <= Diff then Key and Pow is accepted.* 
+*if BitCompare(Snapshot, Fingerprint) <= Diffrence then Key and Power is accepted.* 
 
 *BitCompare()* give the number of difference bits between *Snapshot* and *Fingerprint*
 
-Pick 6 key values from all contributors, which have geater *Pow* and lower *Diff* bits: *Keys[]*
+Pick 5 key values from all contributors, which have geater *Power* and lower *Diff* bits: *Keys[]*
 
-*let Random = TheDivine.GetPower() ^ Keys[0] ^ ... ^ Keys[5];*
+*let Random = Keys[0] ^ ... ^ Keys[5];*
 
-Remove 64 bits fingerprint from *Random*, that will be the final result. 
+Remove 128 bits fingerprint from *Random*, that will be the final result. 
