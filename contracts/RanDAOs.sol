@@ -21,7 +21,7 @@ pragma solidity ^0.4.2;
 contract RanDAOs{
     uint256 constant MIN_DEPOSIT = 1 ether;
     uint16 constant MIN_POWER = 128;
-    uint16 constant MAX_POWER = 2048;
+    uint16 constant MAX_POWER = 4096;
     uint16 constant MIN_DIFFERENCE = 16;
     uint16 constant FINGERPRINT_LEN = 128;
     uint constant MAX_CONRIBUTE = 5;
@@ -43,6 +43,8 @@ contract RanDAOs{
         uint256 StartBlock;
         uint256 Deposit;
         uint256 Seed;
+        uint16 Difference;
+        uint16 Power;
         uint256 Difficulty;
         uint128 Fingerprint;
         uint8 Total;
@@ -107,6 +109,8 @@ contract RanDAOs{
             NewCampaign.StartBlock = block.number;
             NewCampaign.Seed = uint256(block.blockhash(block.number-1));
             NewCampaign.Difficulty = _DifficultyCalulate(Power, Difference);
+            NewCampaign.Difference = Difference;
+            NewCampaign.Power = Power;
             NewCampaign.Fingerprint = uint128(NewCampaign.Seed);
 
             //Show us new event is ready
@@ -148,7 +152,8 @@ contract RanDAOs{
         CurContribute.Difference = BitCompare(uint128(Buffer), CurCampaign.Fingerprint);
         CurContribute.Difficulty = _DifficultyCalulate(Power, CurContribute.Difference);
 
-        if(CurContribute.Difficulty > CurCampaign.Difficulty
+        if(CurContribute.Difference <= CurCampaign.Difference
+            && CurContribute.Difficulty > CurCampaign.Difficulty
             && msg.value >= CurCampaign.Deposit/10){
             
             CurContribute.Sender = msg.sender;
