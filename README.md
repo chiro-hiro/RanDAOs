@@ -26,7 +26,7 @@ let Seed = block.blockhash(block.number - 1)
 let Fingerprint = uint128(Seed)
 ```
 
-All of above make sure that noone know about the Fingerprint.
+All of above make sure that noone know about the *Fingerprint*.
 
 ### Difficulty calculation
 
@@ -65,7 +65,7 @@ if BitCompare(Snapshot, Fingerprint) <= RequireDiffrence && Power > RequirePower
 
 Challengers are need to deposit 10% of prize pool. 
 
-Seed value will be changed, after his submission is received. It's mean, fingerprint is also changed
+*Seed* value will be changed, after his submission is received. It's mean, *Fingerprint* is also changed
 
 ```javascript
 let Seed = sha3(Seed, Key)
