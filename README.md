@@ -41,7 +41,7 @@ It's mean *Power* is more effect to  *Difficulty* value.
 
 **Host** create a campaign for anyone to submit numbers.
 
-**Host** give two numbers *Difference* & *Power*
+**Host** give two numbers *RequireDifference* & *RequirePower*
 
 ```javascript
 let Result = sha3(sha3(sha3(sha3(sha3(....sha3(Seed + Key)))))) // Sha3 Power times
@@ -56,10 +56,28 @@ set Snapshot = uint128(Result)
 ```
 
 ```javascript
-if BitCompare(Snapshot, Fingerprint) <= Diffrence // Then Key and Power is accepted.
+if BitCompare(Snapshot, Fingerprint) <= RequireDiffrence && Power > RequirePower // Then Key and Power is accepted.
 ``` 
 
 *BitCompare()* give the number of difference bits between *Snapshot* and *Fingerprint*
+
+### Challenger success to submit his submission 
+
+Challengers are need to deposit 10% of prize pool. 
+
+Seed value will be changed, after his submission is received. It's mean, fingerprint is also changed
+
+```javascript
+let Seed = sha3(Seed, Key)
+```
+
+*Difficulty* will be increased to new *Difficulty* of submission.
+
+```javascript
+let Difficulty = DifficultyCalculate(Power, Key)
+```
+
+### End
 
 Pick 5 key values from all contributors, (which have geater *Power* and lower *Diff* bits): *Keys[]*
 
