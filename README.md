@@ -74,8 +74,10 @@ let Seed = sha3(Seed, Key)
 *Difficulty* will be increased to new *Difficulty* of submission.
 
 ```javascript
-let Difficulty = DifficultyCalculate(Power, Key)
+let Difficulty = DifficultyCalculate(Power, difference)
 ```
+
+No one able to predict because *Seed* is dependence to unknow value.
 
 ### End
 
