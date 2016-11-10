@@ -42,7 +42,6 @@ contract RanDAOs{
         address Creator;
         uint256 StartBlock;
         uint256 Deposit;
-        uint256 Seed;
         uint16 Difference;
         uint16 Power;
         uint32 Difficulty;
@@ -59,7 +58,6 @@ contract RanDAOs{
         address Creator,
         uint256 Campaign_id,
         uint256 Deposit,
-        uint256 Seed,
         uint128 Fingerprint,
         uint32 Difficulty,
         uint256 Require_deposit);
@@ -68,7 +66,6 @@ contract RanDAOs{
     event EventNewChallenger(
         address Challenger,
         uint256 Campaign_id,
-        uint256 Seed,
         uint128 Fingerprint,
         uint32 Difficulty,
         uint256 Require_deposit);
@@ -107,18 +104,16 @@ contract RanDAOs{
             NewCampaign.Deposit = msg.value;
 
             NewCampaign.StartBlock = block.number;
-            NewCampaign.Seed = uint256(block.blockhash(block.number-1));
             NewCampaign.Difficulty = _DifficultyCalulate(Power, Difference);
             NewCampaign.Difference = Difference;
             NewCampaign.Power = Power;
-            NewCampaign.Fingerprint = uint128(NewCampaign.Seed);
+            NewCampaign.Fingerprint = uint128(block.blockhash(block.number-1));
 
             //Show us new event is ready
             EventNewCampaign(
                 msg.sender,
                 CampaignId,
                 msg.value,
-                NewCampaign.Seed,
                 NewCampaign.Fingerprint,
                 NewCampaign.Difficulty,
                 msg.value/10
@@ -149,7 +144,7 @@ contract RanDAOs{
             || CurCampaign.Creator == address(0)){
             throw;
         }
-        bytes32 Buffer = sha3(CurCampaign.Seed, Key);
+        bytes32 Buffer = sha3(CurCampaign.Fingerprint, Key);
         for(uint16 Index = 1; Index < Power; Index++){
             Buffer = sha3(Buffer);
         }
@@ -171,14 +166,12 @@ contract RanDAOs{
             CurCampaign.Deposit += msg.value;
 
             //Update fingerprint for new challenger
-            CurCampaign.Seed = uint256(sha3(CurCampaign.Seed, Key));
-            CurCampaign.Fingerprint = uint128(CurCampaign.Seed);
+            CurCampaign.Fingerprint = uint128(Key) / 2**FINGERPRINT_LEN;
 
             //New challenger have successed
             EventNewChallenger(
                 msg.sender,
                 CurCampaign.CampaignId,
-                CurCampaign.Seed,
                 CurCampaign.Fingerprint,
                 CurCampaign.Difficulty,
                 CurCampaign.Deposit/10
