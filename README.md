@@ -10,7 +10,7 @@ Don't generate random number, let's brute force it.
 * **Challengers** give **Host** the result, **Host** pick 5 best numbers.
 * **Host** combine 5 numbers by using XOR operator.
 
-## Proof of Work & Zero knowledge
+## Proof of Work & Zero-knowledge Proof
 
 ### Create fingerprint
 
