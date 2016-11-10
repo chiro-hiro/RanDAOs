@@ -6,15 +6,15 @@ Don't generate random number, let's brute force it.
 
 ## Idea
 
-* **Host** think about a number and ask **Challengers** to guess the results.
-* **Challengers** give **Host** the results, **Host** pick 5 best numbers.
+* **Host** think about a number, He will describe the number and ask **Challengers** to guess the result.
+* **Challengers** give **Host** the result, **Host** pick 5 best numbers.
 * **Host** combine 5 numbers by using XOR operator.
 
 ## Proof of Work & Zero knowledge
 
 ### Create fingerprint
 
-Block hash is computed by miner and he have no idea what it is, until he found it.
+Block hash is computed by miners and they have no idea what it is, until it will be found.
 
 ```javascript
 let Seed = block.blockhash(block.number - 1)
@@ -26,14 +26,19 @@ let Seed = block.blockhash(block.number - 1)
 let Fingerprint = uint128(Seed)
 ```
 
-All of above make sure that noone know about the *Fingerprint*.
+All of above make sure that noone know about the *Fingerprint* before new block found.
 
 ### Difficulty calculation
 
 *Difficulty* was calculated by.
 
 ```javascript
-let Difficulty = Power << 128 |128 - Difference // Power shift left 128 bits OR with (128 - Difference)
+/*
+Power shift left 16 bits OR with FINGERPRINT_LEN - Difference
+The number with higher difference is a worst value.
+FINGERPRINT_LEN equal to 128 bits
+*/
+let Difficulty = Power << 16 |FINGERPRINT_LEN - Difference 
 ```
 It's mean *Power* is more effect to  *Difficulty* value.
 
@@ -49,23 +54,25 @@ let Result = sha3(sha3(sha3(sha3(sha3(....sha3(Seed + Key)))))) // Sha3 Power ti
 
 **Challengers** need to brute force *Key* and *Power* values.
 
-Pick 128 bits from *Result*:
+Pick 128 bits from *Result* as a *Snapshot*:
 
 ```javascript
 set Snapshot = uint128(Result)
 ```
+Compare to current fingerprint:
 
 ```javascript
 if BitCompare(Snapshot, Fingerprint) <= RequireDiffrence && Power > RequirePower // Then Key and Power is accepted.
 ``` 
 
 *BitCompare()* give the number of difference bits between *Snapshot* and *Fingerprint*
+We are try to find a half collision.
 
 ### Challenger success to submit his submission 
 
-Challengers are need to deposit 10% of prize pool. 
+**Challengers** are need to deposit 10% of prize pool. 
 
-*Seed* value will be changed, after his submission is received. It's mean, *Fingerprint* is also changed
+*Seed* will be changed, after his submission is received. It's mean, *Fingerprint* is also changed
 
 ```javascript
 let Seed = sha3(Seed, Key)

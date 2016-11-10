@@ -34,7 +34,7 @@ contract RanDAOs{
         bytes32 Key;
         uint16 Power;
         uint16 Difference;
-        uint256 Difficulty;
+        uint32 Difficulty;
     }
     
     struct Campaign{
@@ -45,7 +45,7 @@ contract RanDAOs{
         uint256 Seed;
         uint16 Difference;
         uint16 Power;
-        uint256 Difficulty;
+        uint32 Difficulty;
         uint128 Fingerprint;
         uint8 Total;
         uint128 Result;
@@ -61,7 +61,7 @@ contract RanDAOs{
         uint256 Deposit,
         uint256 Seed,
         uint128 Fingerprint,
-        uint256 Difficulty,
+        uint32 Difficulty,
         uint256 Require_deposit);
     
     //New challenger is success
@@ -70,15 +70,15 @@ contract RanDAOs{
         uint256 Campaign_id,
         uint256 Seed,
         uint128 Fingerprint,
-        uint256 Difficulty,
+        uint32 Difficulty,
         uint256 Require_deposit);
     
     mapping  (uint => Campaign) StoreCampaigns;
 
     //Calculate Difficulty
     function _DifficultyCalulate(uint16 Power, uint16 Difference)
-    private returns(uint256) {
-        return uint256(Power)*(2**128) | (uint256(FINGERPRINT_LEN) - uint256(Difference));
+    private returns(uint32) {
+        return uint32(Power)*(2**16) | (uint32(FINGERPRINT_LEN) - uint32(Difference));
     }
     
     /*
@@ -129,6 +129,10 @@ contract RanDAOs{
             return CampaignId;
         }
     }
+
+    function StartCampaign(){
+        
+    } 
     
     /*
     Submit your contribute, if it wasn't existing then:
