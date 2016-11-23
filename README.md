@@ -7,7 +7,7 @@ Don't generate random number, let's brute force it.
 ## Idea
 
 * **Host** think about a number, he will describe the number and ask **Challengers** to guess the result.
-* **Host** take result from **Challengers** and remove his description to make new description.
+* **Host** take result from **Challengers** and remove previous description to make new description.
 * Another **Challengers** will try to guess new result.
 * **Host** pick 5 best results and combine them by using XOR operator.
 
@@ -23,7 +23,7 @@ Blockhash is computed by miners and they have no idea what is it, until block ha
 let Fingerprint = uint128(block.blockhash(block.number - 1))
 ```
 
-All of above make sure that noone know about the *Fingerprint* before new block found.
+All of above make sure that no one know about the *Fingerprint* before new block found.
 
 ### Difficulty calculation
 
@@ -43,7 +43,7 @@ It's mean *Power* is more effect to  *Difficulty* value.
 
 **Host** create a campaign for anyone to submit answers.
 
-**Host** give two conditions *RequireDifference* & *RequirePower*
+*RequireDifference* & *RequirePower* is the requisites to the contributor submission effective ( accepted).
 
 ```javascript
 let Result = sha3(sha3(sha3(sha3(sha3(....sha3(Fingerprint + Key)))))) // Sha3 Power times
@@ -62,9 +62,9 @@ Compare *Snapshot* and current *Fingerprint*:
 BitCompare(Snapshot, Fingerprint) <= RequireDiffrence && Power > RequirePower // Key and Power are accepted if following conditions are satisfy.
 ``` 
 
-*BitCompare()* give the number of difference bits between *Snapshot* and *Fingerprint*.
+*BitCompare()* is the operation that comparing how many difference bits?.
 
-We are try to find a half collision.
+We are try to find a half collision (the half-same numbers).
 
 ### Challenger success to submit his submission 
 
@@ -82,11 +82,11 @@ let Fingerprint = Key >> FINGERPRINT_LEN // Remove old Fingerprint from new Fing
 let Difficulty = DifficultyCalculate(Power, difference)
 ```
 
-No one able to predict because new *Fingerprint* is dependence previously computed result.
+No one able to predict because of the new *Fingerprint* is dependent on the results of previous calculations.
 
 ### End
 
-Pick 5 *Key*s from all contributors, which have highest *Difficulty* (which have geater *Power* and lower *Difference* bits): *Keys[]*
+Pick 5 *Key*s from all contributors having highest *Difficulty* (which have geater *Power* and lower *Difference* bits): *Keys[]*
 
 ```javascript
 let Random = Keys[0] ^ Keys[1] ^ Keys[2] ^ Keys[3] ^ Keys[4] ^ Keys[5];
